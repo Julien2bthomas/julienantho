@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="./echarts.css" rel="stylesheet" />
+  <title>SAE 301</title>
+</head>
+
+<body>
+  <header>
+    <nav>
+      <div class="navbar">
+        <div class="nav-center">
+          <a href="#graphlink">Incendie</a>
+          <a href="#graph2link">Causes</a>
+          <a href="#graph3link">Département</a>
+        </div>
+      </div>
+    </nav>
+
+    <h1>
+      DATA VISUALISATION <br> THOMAS JULIEN
+    </h1>
+    <div id="graphlink"></div>
+  </header>
+  <main>
+    
+    <section id="graph1">
+      <div class=text>
+        <h2>
+          Graphique des incendies sur l'année 2021
+        </h2>
+        <p>
+          Les feux peuvent être extrêmement dangereux si on ne les gère pas correctement. Ils peuvent causer des dommages matériels considérables et des blessures graves voire mortelles aux personnes qui s'en approchent trop près ou qui ne prennent pas les précautions nécessaires. Les incendies de forêt causés par les feux de nature criminelle ou accidentelle peuvent également causer des dommages écologiques importants et détruire des habitats naturels. Il est donc crucial de respecter les consignes de sécurité lors de l'utilisation de feux de camp ou de toute autre source de feu, et de signaler rapidement tout incendie suspect à les autorités compétentes.<br> Ce graphique représente le nombre d'incendie dans tout le Sud de la France durant toute l'année 2021<br><br> Continue de scroller pour voir les causes !
+        </p>
+      </div>
+      <div id="chart1" style="width:80%; height:400px">
+      </div>
+    </section>
+    <div id="graph2link"></div>
+    <section id="graph2">
+      <div class="text2">
+        <h2>
+          Cause de chaque feu
+        </h2>
+        <p>
+          Ce graphique mets en avant les causes de chaque feu durant l'année 2021 .<br>
+
+          1=Mégot<br>
+          2=Accident<br>
+          3=Foudre<br>
+          4=Malveillance<br>
+          5= Involontaire<br>
+          6=Conflit<br>
+
+         On remarque donc que la pluspart des departs de feu dans le sud de la France sont du a cause de la Foudre ou de personne malveillante
+
+         <br><br> Continue de scroller pour voir les departements !
+        </p>
+      </div>
+      <div id="chart2" style="width:100%; height:400px">
+      </div>
+        <div>
+    </section>
+    <div id="graph3link"></div>
+    <section id="graph3">
+      <div class="text3">
+        <h2>
+         Nombre de feu par Départements !
+        </h2>
+        <p>
+          Dans ce graphique qui représente le nombre de feu sur chaque département durant l'annee 2021<br><br>
+
+         On peux remarquer que dans les départements et les villes ou il y a la plus grande concentration démographique et la ou les témpératures sont les plus élevées comme : Haute-Corse / Corse du Sud / Bouches du Rhones etc.<br><br>
+
+          On peut donc en déduire que le risques d'incendies est plus élevées dans des zones avec une forte concentration démographique et de forte températures.<br><br>
+   
+
+
+        </p>
+      </div>
+        <div id="chart3" style="width:100%; height:800px">
+        </div>
+    </section>
+    <div class="divimage">
+        <img src="img/Affiche pub data.png">
+        <p>Affiche pour promouvoir ce site web !</p>
+    </div>
+  </main>
+  <footer>
+    <p>Thomas Julien <br> IUT MMI 2023</p>
+  </footer>
+ 
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.js"></script>
+  <script>
+    fetch('./incendies2021.json')
+      .then((response) => response.json())
+      .then((json) => {
+        // Initialize the echarts instance based on the prepared dom
+        const myChart = echarts.init(document.querySelector('#chart1'));
+        const myChart2 = echarts.init(document.querySelector('#chart2'));
+        const myChart3 = echarts.init(document.querySelector('#chart3'));
+        
+        
+
+        
+//FUNCTION CHART 1// 
+        const groupByMonth = json.reduce((acc, current) => {
+          const mois = current["Alerte"].substring(3, 8);
+          if (!acc[mois]) {
+            acc[mois] = [];
+          }
+
+          acc[mois].push(current);
+
+          return acc;
+        }, {});
+//CHART 1// 
+
+//FUNCTION CHART 2// 
+        function compteFeuParDepartement() {
+          const nombre_par_departement = {};
+          let tous_les_departements = [];
+          json.forEach(element => {
+            const departement = element["Origine de l'alerte"];
+            tous_les_departements.push(departement);
+          });
+          tous_les_departements_unique = [...new Set(tous_les_departements)]; 
+          tous_les_departements_unique.forEach(departement => {
+            nombre_par_departement[departement] = tous_les_departements.filter((valeur) => valeur == departement).length;
+          });
+          return nombre_par_departement;
+        }
+//CHART 2// 
+
+//FUNCTION CHART 3// 
+        function compteFeuParRegion() {
+  const nombre_par_region = {};
+  let toutes_les_regions = [];
+  json.forEach(element => {
+  const region = element["Département"];
+  toutes_les_regions.push(region);
+  });
+  toutes_les_regions_uniques = [...new Set(toutes_les_regions)];
+  toutes_les_regions_uniques.forEach(region => {
+  nombre_par_region[region] = toutes_les_regions.filter((valeur) => valeur == region).length;
+  });
+return nombre_par_region;
+}
+//CHART 3// 
+
+        const nombre_par_departement = compteFeuParDepartement();
+        const nombre_par_region = compteFeuParRegion();
+
+  //CHART 1//      
+        const option = {
+          title: {
+            text: 'Incendies par mois en 2021'
+          },
+          tooltip: {},
+          legend: {
+            data: ['Mois']
+          },
+          xAxis: {
+            name: "Mois",
+            
+            data: Object.keys(groupByMonth), // Reécupère les clef d'un objets
+          },
+          yAxis: {},
+          series: [
+            {
+              name: 'Incendies',
+              type: 'bar',
+              data: Object.values(groupByMonth).map((valeur) => valeur.length)
+            }
+          ]
+        };
+        myChart.setOption(option);
+   //CHART 1//     
+
+//CHART 2//
+        const optionLine = {
+          xAxis: {
+            type: 'category',
+            data: Object.keys(nombre_par_departement)
+          },
+          yAxis: {
+            type: 'value'
+          },
+          series: [
+            {
+              data: Object.values(nombre_par_departement),
+              type: 'line'
+            }
+          ]
+        };
+        myChart2.setOption(optionLine);
+//CHART 2//
+
+//CHART 3//
+        optionRegion = {
+  title: {
+    text: 'Feu par Département',
+    subtext: 'Sur 2021',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'item'
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'left'
+  },
+  series: [
+    {
+      name: 'Incendies',
+      type: 'pie',
+      radius: '60%',
+      data: [
+        { value: 164, name: 'Corse-Du-Sud' },
+        { value: 177, name: 'Haute-Corse' },
+        { value: 43, name: 'Alpes de Haute-Provence' },
+        { value: 25, name: 'Hautes-Alpes' },
+        { value: 69, name: 'Alpes-Maritimes' },
+        { value: 51, name: 'Ardêche' },
+        { value: 268, name: 'Audes' },
+        { value: 297, name: 'Bouche-Du-Rhône' },
+        { value: 11, name: 'Drôme' },
+        { value: 90, name: 'Gard' },
+        { value: 128, name: 'Hérault' },
+        { value: 25, name: 'Lozère' },
+        { value: 124, name: 'Pyrénées Oriental' },
+        { value: 72, name: 'Var' },
+        { value: 53, name: 'Vaucluse' },
+
+      ],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)'
+        }
+      }
+    }
+  ]
+};
+        myChart3.setOption(optionRegion);
+      });
+//CHART 3//
+  </script>
+  
+</body>
+
+</html>
